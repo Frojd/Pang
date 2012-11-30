@@ -1,4 +1,4 @@
-var socket = io.connect('http://localhost');
+var socket = io.connect('http://10.110.162.120');
 
 $(document).ready(function(){
 
