@@ -110,7 +110,8 @@ var pongInit = function() {
 
     }
 
-    socket.on("allReady", function(data) {
+    socket.on("start", function(data) {
+        console.log("started");
         ball.xd = BALL_DIRECTIONS[Math.floor((Math.random() * BALL_DIRECTIONS.length))];
     });
 
@@ -118,6 +119,7 @@ var pongInit = function() {
 
         if (keydown.space) {
             socket.emit("ready");
+            console.log("You are ready.");
             //ball.xd = BALL_DIRECTIONS[Math.floor((Math.random() * BALL_DIRECTIONS.length))];
         }
 
