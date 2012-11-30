@@ -8,7 +8,7 @@ var express = require('express')
   , server = require('http').createServer(app)
   , io = require('socket.io').listen(server)
   , routes = require('./routes')
-  , user = require('./routes/user')
+  , pang = require('pang')
   , http = require('http')
   , path = require('path');
 
