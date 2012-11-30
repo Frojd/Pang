@@ -88,6 +88,11 @@ var pongInit = function() {
     };
 
 
+    socket.on('move', function (data) {
+      var player = data.side === "left" ? player_1 : player_2;
+      player.y = data.offset.y;
+    });
+
     function draw() {
 
         canvas.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
@@ -145,32 +150,39 @@ var pongInit = function() {
 
         /*PLayer 1*/
         if (keydown.w) {
-            player_1.y -= player_1.speed;
+            socket.emit('move', {direction: 'up' });
+/*            player_1.y -= player_1.speed;
             if (player_1.y < 0) {
                 player_1.y = 0;
-            }
+            }*/
         }
 
         if (keydown.s) {
-            player_1.y += player_1.speed;
+            socket.emit('move', {direction: 'down' });
+/*            player_1.y += player_1.speed;
             if (player_1.y > CANVAS_HEIGHT - player_1.height) {
                 player_1.y = CANVAS_HEIGHT - player_1.height;
             }
+            */
         }
 
         /*PLayer 2*/
         if (keydown.up) {
+            socket.emit('move', {direction: 'up' });
+ /*         
             player_2.y -= player_2.speed;
             if (player_2.y < 0) {
                 player_2.y = 0;
-            }
+            }*/
         }
 
         if (keydown.down) {
-            player_2.y += player_2.speed;
+            socket.emit('move', {direction: 'down' });
+          
+/*            player_2.y += player_2.speed;
             if (player_2.y > CANVAS_HEIGHT - player_2.height) {
                 player_2.y = CANVAS_HEIGHT - player_2.height;
-            }
+            }*/
         }
 
         handleCollisions();
