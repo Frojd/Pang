@@ -1,23 +1,45 @@
-var app = require('http').createServer(handler)
-  , io = require('socket.io').listen(app)
-  , fs = require('fs')
-  , pang = require('pang');
 
-app.listen(4545);
+/**
+ * Module dependencies.
+ */
 
-function handler (req, res) {
-  fs.readFile(__dirname + '/index.html',
-  function (err, data) {
-    if (err) {
-      res.writeHead(500);
-      return res.end('Error loading index.html');
-    }
+var express = require('express')
+  , http = require('http')
+  , path = require('path')
+  , app = express()
+  , server = require('http').createServer(app)
+  , io = require('socket.io').listen(server)
+  , pang = require('pang')
+  , routes = require('./routes')
+  , user = require('./routes/user');
 
-    res.writeHead(200);
-    res.end(data);
-  });
-}
 
+server.listen(8888);
+
+
+app.configure(function(){
+  app.set('port', process.env.PORT || 8888);
+  app.set('views', __dirname + '/views');
+  app.set('view engine', 'jade');
+  app.use(express.favicon());
+  app.use(express.logger('dev'));
+  app.use(express.bodyParser());
+  app.use(express.methodOverride());
+  app.use(app.router);
+  app.use(express.static(path.join(__dirname, 'public')));
+});
+
+app.configure('development', function(){
+  app.use(express.errorHandler());
+});
+
+app.get('/', routes.index);
+app.get('/users', user.list);
+
+
+/*
+ * Sockets
+ */
 var theGame = new pang.Game('The game');
 
 io.sockets.on('connection', function (socket) {
@@ -29,3 +51,4 @@ io.sockets.on('connection', function (socket) {
   theGame.join(socket);
   socket.emit('connection_status', { connected: true });
 });
+
