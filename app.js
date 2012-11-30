@@ -18,11 +18,19 @@ function handler (req, res) {
   });
 }
 
-console.log(pang);
+var theGame = new pang.Game('The game');
 
 io.sockets.on('connection', function (socket) {
+  if (theGame.isFull()) {
+    socket.emit('full');
+    return;
+  }
+
+  theGame.join(socket);
+
   socket.emit('news', { hello: 'world' });
   socket.on('my other event', function (data) {
     console.log(data);
   });
+
 });
