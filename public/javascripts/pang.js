@@ -1,4 +1,5 @@
-$(document).ready(function(){
+
+var pongInit = function() {
 
     window.keydown = {};
 
@@ -9,6 +10,7 @@ $(document).ready(function(){
 
     $(document).bind("keydown", function(event) {
         keydown[keyName(event)] = true;
+        socket.emit("move", {down : 10});
     });
 
     $(document).bind("keyup", function(event) {
@@ -167,6 +169,4 @@ $(document).ready(function(){
     }
 
 
-});
-
-
+}
