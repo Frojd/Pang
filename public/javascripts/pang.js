@@ -110,10 +110,15 @@ var pongInit = function() {
 
     }
 
+    socket.on("allReady", function(data) {
+        ball.xd = BALL_DIRECTIONS[Math.floor((Math.random() * BALL_DIRECTIONS.length))];
+    });
+
     function update() {
 
         if (keydown.space) {
-            ball.xd = BALL_DIRECTIONS[Math.floor((Math.random() * BALL_DIRECTIONS.length))];
+            socket.emit("ready");
+            //ball.xd = BALL_DIRECTIONS[Math.floor((Math.random() * BALL_DIRECTIONS.length))];
         }
 
         ball.x -= ball.speed * ball.xd;
