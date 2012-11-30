@@ -37,6 +37,7 @@ $(document).ready(function(){
     var BALL_DIRECTIONS = [1, -1];
 
     var player_1 = {
+        score: 0,
         speed: PLAYER_SPEED,
         color: "#ffffff",
         x: 10,
@@ -50,6 +51,7 @@ $(document).ready(function(){
     };
 
     var player_2 = {
+        score: 0,
         speed: PLAYER_SPEED,
         color: "#ffffff",
         x: CANVAS_WIDTH - 10 - PLAYER_WIDTH,
@@ -88,6 +90,18 @@ $(document).ready(function(){
 
         canvas.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
 
+        /*Draw line*/
+        canvas.moveTo(CANVAS_WIDTH/2, 0);
+        canvas.lineTo(CANVAS_WIDTH/2, CANVAS_HEIGHT);
+        canvas.strokeStyle = '#ffffff';
+        canvas.stroke();
+
+        /*Display scores*/
+        canvas.fillStyle = "#ffffff"; // Set color to black
+
+        canvas.fillText(add_zero(player_1.score), CANVAS_WIDTH / 2 - 16, 10);
+        canvas.fillText(add_zero(player_2.score), CANVAS_WIDTH / 2 + 5, 10);
+
         ball.draw();
         player_1.draw();
         player_2.draw();
@@ -96,16 +110,23 @@ $(document).ready(function(){
 
     function update() {
 
-
         if (keydown.space) {
             ball.xd = BALL_DIRECTIONS[Math.floor((Math.random() * BALL_DIRECTIONS.length))];
         }
 
         ball.x -= ball.speed * ball.xd;
         if (ball.x < 0 || ball.x > CANVAS_WIDTH - ball.width) {
-            clearInterval(game_running);
-            alert('LOSER!!!');
-            ball.xd = ball.xd * -1;
+
+            if (ball.x < 0) {
+                player_2.score++;
+            } else if (ball.x > CANVAS_WIDTH - ball.width) {
+                player_1.score++;
+            }
+
+            ball.xd = 0;
+            ball.yd = 0;
+            ball.x = CANVAS_WIDTH / 2;
+            ball.y = CANVAS_HEIGHT / 2;
         }
 
         ball.y -= ball.yd;
@@ -164,6 +185,10 @@ $(document).ready(function(){
             ball.yd = collition_data[1] / 10;
         }
         return true;
+    }
+
+    function add_zero(digit) {
+        return (digit < 10) ? '0' + digit : digit;
     }
 
 
