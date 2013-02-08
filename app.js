@@ -39,8 +39,14 @@ app.get('/', routes.index);
 var theGame = new pang.Game('The game');
 
 io.sockets.on('connection', function (socket) {
+  socket.on('disconnect', function () {
+    theGame.leave(socket);
+    return;
+  });
+
   if (theGame.isFull()) {
-    socket.emit('connection_status', { connected: false, error: "Server is full" });
+    socket.emit('connection_status', { connected: false, error: "Server is full, you are in que." });
+    theGame.enque(socket);
     return;
   }
 

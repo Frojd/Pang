@@ -13,3 +13,12 @@ canvas {
   background: #000000;
   border: 1px solid #ffffff;
 }
+
+h1 {
+  font-family: Arial;
+  font-size: 32px;
+  text-transform: uppercase;
+  text-align: center;
+  color: #fff;
+  margin-top: 2%;
+}

@@ -25,7 +25,7 @@ var pongInit = function() {
     var canvas = canvas_element.getContext('2d');
 
 
-    var FPS = 120;
+    var FPS = 1000;
     var game_running = setInterval(function() {
         update();
         draw();
@@ -87,12 +87,6 @@ var pongInit = function() {
         }
     };
 
-
-    socket.on('move', function (data) {
-      var player = data.side === "left" ? player_1 : player_2;
-      player.y = data.offset.y;
-    });
-
     function draw() {
 
         canvas.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
@@ -105,6 +99,7 @@ var pongInit = function() {
 
         /*Display scores*/
         canvas.fillStyle = "#ffffff"; // Set color to black
+        canvas.font = 'normal 10px Arial';
 
         canvas.fillText(add_zero(player_1.score), CANVAS_WIDTH / 2 - 16, 10);
         canvas.fillText(add_zero(player_2.score), CANVAS_WIDTH / 2 + 5, 10);
@@ -117,7 +112,22 @@ var pongInit = function() {
 
     socket.on("start", function(data) {
         console.log("started");
-        ball.xd = BALL_DIRECTIONS[Math.floor((Math.random() * BALL_DIRECTIONS.length))];
+        ball.xd = data;
+    });
+
+    socket.on('move', function (data) {
+      var player = data.side === "left" ? player_1 : player_2;
+      player.y = data.offset.y;
+    });
+
+    socket.on('score', function (data) {
+      var side = data === "left" ? player_1 : player_2;
+      side.score += 1;
+    });
+
+    socket.on('ballmove', function (data) {
+        ball.x = data.x;
+        ball.y = data.y;
     });
 
     function update() {
@@ -125,87 +135,25 @@ var pongInit = function() {
         if (keydown.space) {
             socket.emit("ready");
             console.log("You are ready.");
-            //ball.xd = BALL_DIRECTIONS[Math.floor((Math.random() * BALL_DIRECTIONS.length))];
-        }
-
-        ball.x -= ball.speed * ball.xd;
-        if (ball.x < 0 || ball.x > CANVAS_WIDTH - ball.width) {
-
-            if (ball.x < 0) {
-                player_2.score++;
-            } else if (ball.x > CANVAS_WIDTH - ball.width) {
-                player_1.score++;
-            }
-
-            ball.xd = 0;
-            ball.yd = 0;
-            ball.x = CANVAS_WIDTH / 2;
-            ball.y = CANVAS_HEIGHT / 2;
-        }
-
-        ball.y -= ball.yd;
-        if (ball.y < 0 || ball.y > CANVAS_HEIGHT - ball.width) {
-            ball.yd = ball.yd * -1;
         }
 
         /*PLayer 1*/
         if (keydown.w) {
             socket.emit('move', {direction: 'up' });
-/*            player_1.y -= player_1.speed;
-            if (player_1.y < 0) {
-                player_1.y = 0;
-            }*/
         }
 
         if (keydown.s) {
             socket.emit('move', {direction: 'down' });
-/*            player_1.y += player_1.speed;
-            if (player_1.y > CANVAS_HEIGHT - player_1.height) {
-                player_1.y = CANVAS_HEIGHT - player_1.height;
-            }
-            */
         }
 
         /*PLayer 2*/
         if (keydown.up) {
             socket.emit('move', {direction: 'up' });
- /*         
-            player_2.y -= player_2.speed;
-            if (player_2.y < 0) {
-                player_2.y = 0;
-            }*/
         }
 
         if (keydown.down) {
             socket.emit('move', {direction: 'down' });
-          
-/*            player_2.y += player_2.speed;
-            if (player_2.y > CANVAS_HEIGHT - player_2.height) {
-                player_2.y = CANVAS_HEIGHT - player_2.height;
-            }*/
         }
-
-        handleCollisions();
-    }
-
-
-    function collides(a, b) {
-        return [a.x < b.x + b.width && a.x + a.width > b.x && a.y < b.y + b.height && a.y + a.height > b.y, ((a.y + a.height/2) - (b.y + b.height/2))];
-    }
-
-
-    function handleCollisions() {
-        var collition_data = collides(player_1, ball);
-        if (collition_data[0]) {
-            ball.xd = ball.xd * -1;
-            ball.yd = collition_data[1] / 10;
-        }
-        collition_data = collides(player_2, ball);
-        if (collition_data[0]) {
-            ball.xd = ball.xd * -1;
-            ball.yd = collition_data[1] / 10;
-        }
-        return true;
     }
 
     function add_zero(digit) {
