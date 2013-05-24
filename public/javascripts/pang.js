@@ -1,5 +1,7 @@
 
-var pongInit = function() {
+var pongInit = function(data) {
+
+    var playerSide = data.side;
 
     window.keydown = {};
 
@@ -39,6 +41,7 @@ var pongInit = function() {
     var BALL_DIRECTIONS = [1, -1];
 
     var player_1 = {
+        ready: false,
         score: 0,
         speed: PLAYER_SPEED,
         color: "#ffffff",
@@ -53,6 +56,7 @@ var pongInit = function() {
     };
 
     var player_2 = {
+        ready: false,
         score: 0,
         speed: PLAYER_SPEED,
         color: "#ffffff",
@@ -88,7 +92,6 @@ var pongInit = function() {
     };
 
     function draw() {
-
         canvas.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
 
         /*Draw line*/
@@ -104,6 +107,14 @@ var pongInit = function() {
         canvas.fillText(add_zero(player_1.score), CANVAS_WIDTH / 2 - 16, 10);
         canvas.fillText(add_zero(player_2.score), CANVAS_WIDTH / 2 + 5, 10);
 
+        if(!player_1.ready) {
+            canvas.fillText("Player 1 not ready", CANVAS_WIDTH / 2 + 5, 30);
+        }
+
+        if(!player_2.ready) {
+            canvas.fillText("Player 2 not ready", CANVAS_WIDTH / 2 + 5, 50);
+        }    
+
         ball.draw();
         player_1.draw();
         player_2.draw();
@@ -111,7 +122,6 @@ var pongInit = function() {
     }
 
     socket.on("start", function(data) {
-        console.log("started");
         ball.xd = data;
     });
 
@@ -121,14 +131,36 @@ var pongInit = function() {
     });
 
     socket.on('score', function (data) {
-      var side = data === "left" ? player_1 : player_2;
-      side.score += 1;
+      var side = data.side === "left" ? player_1 : player_2;
+      side.score = data.score;
     });
 
     socket.on('ballmove', function (data) {
         ball.x = data.x;
         ball.y = data.y;
     });
+
+    socket.on("ready", function (data) {
+        if(data === "left") {
+            player_1.ready = true;
+        } else {
+            player_2.ready = true;
+        }
+    });
+
+    socket.on("player_left", function (data) {
+        console.log("A player left");
+        if(data === "left") {
+            player_1.ready = false;
+        } else {
+            player_2.ready = false;
+        }
+        //clearInterval(game_running);
+    });
+
+    socket.on("que", function () {
+        clearInterval(game_running);
+    });    
 
     function update() {
 
